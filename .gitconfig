@@ -8,3 +8,8 @@
 	email = 49345642+kuinque@users.noreply.github.com
 [pull]
 	ff = only
+[core]
+	pager = cat
+	editor = nvim
+[merge]
+	tool = nvimdiff
