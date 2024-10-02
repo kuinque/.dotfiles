@@ -36,3 +36,9 @@ brew install tmux
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 source ~/.zshrc
+
+brew install koekeishiya/formulae/skhd
+
+brew install koekeishiya/formulae/yabai
+ 
+skhd --start-service
