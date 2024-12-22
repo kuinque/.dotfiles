@@ -34,3 +34,4 @@ yabai -m rule --add app="^Spotify$" manage=off
 yabai -m rule --add app="^Notes$" manage=off
 yabai -m rule --add app="^Discord$" manage=off
 yabai -m rule --add app="^Notes$" manage=off
+yabai -m rule --add app="^Яндекс Музыка$" manage=off

@@ -4,8 +4,8 @@
 	process = git-lfs filter-process
 	required = true
 [user]
-	name = kuinque
-	email = 49345642+kuinque@users.noreply.github.com
+	name = quinque
+	email = krivetskyy@icloud.com
 [pull]
 	ff = only
 [core]
