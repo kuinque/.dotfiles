@@ -320,13 +320,23 @@ configure_zsh() {
             fi
             ;;
         "debian"|"arch"|"rhel")
-            # For Linux, we'll use the Oh My Zsh custom directory
+            # For Linux, remove macOS-specific paths and add Linux paths
+            log_info "Removing macOS-specific paths from .zshrc..."
+            
+            # Remove macOS Homebrew paths
+            sed -i '/\/opt\/homebrew/d' "$HOME/.zshrc"
+            
+            # Add Linux-specific plugin sources
             if ! grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
                 echo 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh' >> "$HOME/.zshrc"
             fi
             
             if ! grep -q "zsh-syntax-highlighting" "$HOME/.zshrc"; then
                 echo 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> "$HOME/.zshrc"
+            fi
+            
+            if ! grep -q "powerlevel10k" "$HOME/.zshrc"; then
+                echo 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme' >> "$HOME/.zshrc"
             fi
             ;;
     esac

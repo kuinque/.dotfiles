@@ -121,9 +121,7 @@ setopt hist_ignore_dups
 setopt hist_verify
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
-source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Platform-specific plugin sources will be added by install script
 export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
 
 # Added by Windsurf
@@ -131,3 +129,6 @@ export PATH="/Users/krivetskyy/.codeium/windsurf/bin:$PATH"
 
 # Created by `pipx` on 2024-12-08 16:09:16
 export PATH="$PATH:/Users/krivetskyy/.local/bin"
+source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme
