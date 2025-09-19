@@ -16,7 +16,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
-PATH="/Users/krivetskyy/Library/Python/3.12/bin":"$PATH"
+# PATH="/Users/krivetskyy/Library/Python/3.12/bin":"$PATH"  # macOS specific
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -122,13 +122,13 @@ setopt hist_verify
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 # Platform-specific plugin sources will be added by install script
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+# export PATH="/opt/homebrew/opt/llvm/bin:$PATH"  # macOS specific
 
 # Added by Windsurf
-export PATH="/Users/krivetskyy/.codeium/windsurf/bin:$PATH"
+# export PATH="/Users/krivetskyy/.codeium/windsurf/bin:$PATH"  # macOS specific
 
 # Created by `pipx` on 2024-12-08 16:09:16
-export PATH="$PATH:/Users/krivetskyy/.local/bin"
+export PATH="$PATH:/home/krivetskyy/.local/bin"
 source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme
