@@ -113,8 +113,8 @@ alias vim="nvim"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 HISTFILE=$HOME/.zhistory
-# SAVEHIST=1000
-# HISTSIZE=999
+SAVEHIST=1000
+HISTSIZE=999
 setopt share_history
 setopt hist_expire_dups_first
 setopt hist_ignore_dups
@@ -129,6 +129,3 @@ bindkey '^[[B' history-search-forward
 
 # Created by `pipx` on 2024-12-08 16:09:16
 export PATH="$PATH:/home/krivetskyy/.local/bin"
-source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme
