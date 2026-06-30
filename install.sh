@@ -267,79 +267,86 @@ install_tmux_plugins() {
     fi
 }
 
-# Create symlinks for configuration files
+# Prepare a target path so stow can take it over:
+#   - a broken symlink, or a symlink pointing back into this repo (e.g. left by an
+#     older `ln -sf` installer), is removed
+#   - a real file/dir is moved aside to <target>.backup
+prepare_target() {
+    local target="$1"
+    if [[ -L "$target" ]]; then
+        local dest; dest="$(readlink "$target")"
+        if [[ ! -e "$target" || "$dest" == "$DOTFILES_DIR"/* ]]; then
+            log_info "Removing stale symlink $target"
+            rm -f "$target"
+        fi
+    elif [[ -e "$target" ]]; then
+        log_warning "Backing up existing $target to ${target}.backup"
+        mv "$target" "${target}.backup"
+    fi
+}
+
+# Create symlinks for configuration files using GNU stow
 create_symlinks() {
-    log_info "Creating symlinks for configuration files..."
-    
+    log_info "Linking configuration files with stow..."
+
     # Get the directory where this script is located
     DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    
-    # Create necessary directories
-    mkdir -p "$HOME/.config/yabai"
-    mkdir -p "$HOME/.config/skhd"
-    
-    # Create symlinks
-    ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-    ln -sf "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
-    ln -sf "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
-    ln -sf "$DOTFILES_DIR/.config/yabai/yabairc" "$HOME/.config/yabai/yabairc"
-    ln -sf "$DOTFILES_DIR/.config/skhd/skhdrc" "$HOME/.config/skhd/skhdrc"
-    
+
+    if ! command_exists stow; then
+        log_error "stow is not installed. Run the full installer or install GNU stow first."
+        return 1
+    fi
+
+    # Clear stale links / back up real files so stow does not abort on conflicts.
+    local targets=(
+        "$HOME/.zshrc"
+        "$HOME/.tmux.conf"
+        "$HOME/.gitconfig"
+        "$HOME/.p10k.zsh"
+        "$HOME/.config/nvim"
+        "$HOME/.config/kitty"
+        "$HOME/.config/skhd/skhdrc"
+        "$HOME/.config/yabai/yabairc"
+        "$HOME/.config/iterm2"
+    )
+    local t
+    for t in "${targets[@]}"; do
+        prepare_target "$t"
+    done
+
+    # The "home" package mirrors $HOME; --restow is idempotent.
+    stow --dir="$DOTFILES_DIR" --target="$HOME" --restow home
+
     log_success "Symlinks created successfully"
 }
 
-# Configure zsh for different platforms
+# Configure zsh.
+#
+# The tracked .zshrc is a stow symlink and must NOT be mutated here — plugins are
+# loaded through the oh-my-zsh `plugins=(...)` array (cloned into $ZSH_CUSTOM by
+# install_zsh_plugins) and the Powerlevel10k theme via ZSH_THEME, so no extra
+# `source` lines are needed. Machine-specific overrides go in ~/.zshrc.local,
+# which .zshrc sources if present.
 configure_zsh() {
     log_info "Configuring zsh..."
-    
-    # Backup existing .zshrc if it exists and is not a symlink
-    if [[ -f "$HOME/.zshrc" && ! -L "$HOME/.zshrc" ]]; then
-        log_info "Backing up existing .zshrc to .zshrc.backup"
-        mv "$HOME/.zshrc" "$HOME/.zshrc.backup"
+
+    # Seed a machine-local override file (kept out of git) for per-machine PATHs etc.
+    if [[ ! -f "$HOME/.zshrc.local" ]]; then
+        log_info "Creating ~/.zshrc.local for machine-specific settings"
+        cat > "$HOME/.zshrc.local" <<'EOF'
+# Machine-specific zsh settings (not tracked in dotfiles).
+# Add per-machine PATH entries, exports, and tool init here.
+EOF
+        if [[ "$OS" == "macos" ]] && command_exists brew; then
+            echo 'eval "$('"$(command -v brew)"' shellenv)"' >> "$HOME/.zshrc.local"
+        fi
     fi
-    
-    # Platform-specific zsh configuration
-    case $OS in
-        "macos")
-            # Add Homebrew paths to .zshrc
-            if ! grep -q "homebrew" "$HOME/.zshrc"; then
-                echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
-            fi
-            
-            # Add Homebrew-specific plugin sources
-            if ! grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
-                echo 'source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh' >> "$HOME/.zshrc"
-            fi
-            
-            if ! grep -q "zsh-syntax-highlighting" "$HOME/.zshrc"; then
-                echo 'source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> "$HOME/.zshrc"
-            fi
-            
-            if ! grep -q "powerlevel10k" "$HOME/.zshrc"; then
-                echo 'source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme' >> "$HOME/.zshrc"
-            fi
-            ;;
-        "debian"|"arch"|"rhel")
-            # For Linux, remove macOS-specific paths and add Linux paths
-            log_info "Removing macOS-specific paths from .zshrc..."
-            
-            # Remove macOS Homebrew paths
-            sed -i '/\/opt\/homebrew/d' "$HOME/.zshrc"
-            
-            # Add Linux-specific plugin sources
-            if ! grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
-                echo 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh' >> "$HOME/.zshrc"
-            fi
-            
-            if ! grep -q "zsh-syntax-highlighting" "$HOME/.zshrc"; then
-                echo 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> "$HOME/.zshrc"
-            fi
-            
-            if ! grep -q "powerlevel10k" "$HOME/.zshrc"; then
-                echo 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme' >> "$HOME/.zshrc"
-            fi
-            ;;
-    esac
+
+    # Make zsh the default shell if it isn't already.
+    if [[ "$SHELL" != *"zsh"* ]] && command_exists zsh; then
+        log_info "Setting zsh as the default shell"
+        chsh -s "$(command -v zsh)" || log_warning "Could not change default shell automatically; run: chsh -s \$(which zsh)"
+    fi
 }
 
 # Start services (macOS specific)

@@ -121,11 +121,7 @@ setopt hist_ignore_dups
 setopt hist_verify
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
-# Platform-specific plugin sources will be added by install script
-# export PATH="/opt/homebrew/opt/llvm/bin:$PATH"  # macOS specific
 
-# Added by Windsurf
-# export PATH="/Users/krivetskyy/.codeium/windsurf/bin:$PATH"  # macOS specific
-
-# Created by `pipx` on 2024-12-08 16:09:16
-export PATH="$PATH:/home/krivetskyy/.local/bin"
+# Machine-specific settings (PATH entries, brew shellenv, tool init).
+# Kept out of git so this .zshrc stays portable across machines.
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

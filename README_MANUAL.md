@@ -1,55 +1,38 @@
-# .dotfiles
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+# Ручная установка (macOS)
 
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+Шпаргалка на случай, если не хочется запускать `./install.sh`.
+Конфиги раскладываются через `stow` из пакета `home/`, поэтому в `~/.zshrc`
+ничего дописывать вручную НЕ нужно — плагины подключает oh-my-zsh через массив
+`plugins=(...)`, а тему задаёт `ZSH_THEME`.
 
-source ~/.zprofile
+```bash
+# 1. Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc.local   # машинно-специфично, не в git
 
-brew install kitty
-
-brew install nvim
-
-brew install git
-
+# 2. Пакеты
+brew install git stow tmux fzf zsh neovim kitty
 brew install --cask font-iosevka
+brew install koekeishiya/formulae/skhd koekeishiya/formulae/yabai
 
-brew install powerlevel10k
+# 3. oh-my-zsh
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-echo "source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme" >> ~/.zshrc
+# 4. Плагины и тема zsh (в $ZSH_CUSTOM, подключаются через plugins=() и ZSH_THEME)
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+git clone https://github.com/zsh-users/zsh-autosuggestions      "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting  "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+git clone https://github.com/joshskidmore/zsh-fzf-history-search "$ZSH_CUSTOM/plugins/zsh-fzf-history-search"
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
 
-brew install oh-my-zsh
-
-brew install stow
-
-stow . symlinks dotfiles
-
-brew install zsh-autosuggestions
-
-echo "source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ~/.zshrc
-
-brew install zsh-syntax-highlighting
-
-echo "source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ~/.zshrc
-
-brew install tmux
-
+# 5. tmux plugin manager (остальные плагины поставит TPM по Ctrl+a I)
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-source ~/.zshrc
+# 6. Симлинки конфигов
+cd ~/.dotfiles
+stow --dir="$HOME/.dotfiles" --target="$HOME" --restow home
 
-brew install koekeishiya/formulae/skhd
-
-brew install koekeishiya/formulae/yabai
- 
+# 7. Запуск сервисов и финал
 skhd --start-service
-
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-brew install fzf
-
-git clone https://github.com/joshskidmore/zsh-fzf-history-search ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-fzf-history-search
-
+source ~/.zshrc
+```

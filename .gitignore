@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Editor / sed backups
+*.bak
+*-e
+*.backup
+
+# Machine-specific shell overrides (sourced by .zshrc, never tracked)
+.zshrc.local

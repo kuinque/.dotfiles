@@ -41,9 +41,8 @@ symlinks:
 # Show status
 status: check
 
-# Clean symlinks
+# Clean symlinks (unstow the home package)
 clean:
 	@echo "Removing symlinks..."
-	@rm -f ~/.zshrc ~/.tmux.conf ~/.gitconfig
-	@rm -f ~/.config/yabai/yabairc ~/.config/skhd/skhdrc
-	@echo "Symlinks removed. Original files (if any) are preserved."
+	@stow --dir="$(CURDIR)" --target="$(HOME)" --delete home
+	@echo "Symlinks removed. Any *.backup files are preserved."

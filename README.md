@@ -69,19 +69,30 @@ cd ~/.dotfiles
 
 ## 📁 Структура конфигураций
 
+Все пользовательские конфиги лежат в каталоге-пакете `home/`, который точно
+повторяет структуру `$HOME`. Симлинки в домашнюю директорию раскладываются
+через [GNU stow](https://www.gnu.org/software/stow/) одной командой.
+
 ```
 .dotfiles/
-├── .zshrc                 # Конфигурация zsh
-├── .tmux.conf            # Конфигурация tmux
-├── .gitconfig            # Конфигурация git
-├── .config/
-│   ├── yabai/
-│   │   └── yabairc       # Конфигурация yabai (macOS)
-│   └── skhd/
-│       └── skhdrc        # Конфигурация skhd (macOS)
-├── install.sh            # Скрипт установки
-└── update.sh             # Скрипт обновления
+├── home/                     # stow-пакет (раскладывается в $HOME)
+│   ├── .zshrc                # Конфигурация zsh
+│   ├── .tmux.conf            # Конфигурация tmux
+│   ├── .gitconfig            # Конфигурация git
+│   ├── .p10k.zsh             # Тема Powerlevel10k
+│   └── .config/
+│       ├── kitty/            # Конфигурация kitty
+│       ├── nvim/             # Конфигурация Neovim
+│       ├── yabai/yabairc     # Конфигурация yabai (macOS)
+│       └── skhd/skhdrc       # Конфигурация skhd (macOS)
+├── install.sh                # Скрипт установки
+├── update.sh                 # Скрипт обновления
+└── Makefile                  # make install / update / check / clean
 ```
+
+> Машинно-специфичные настройки (PATH, `brew shellenv` и т.п.) живут в
+> `~/.zshrc.local` — этот файл не отслеживается git и подключается из `.zshrc`.
+> Ручное редактирование симлинков не нужно: правьте файлы прямо в `home/`.
 
 ## 🔧 Управление
 
@@ -122,7 +133,7 @@ set -g @themepack 'powerline/block/blue'
 ```
 
 ### Настройка горячих клавиш yabai
-Отредактируйте `.config/skhd/skhdrc` для изменения горячих клавиш.
+Отредактируйте `home/.config/skhd/skhdrc` для изменения горячих клавиш.
 
 ### Добавление новых плагинов zsh
 Добавьте плагины в массив `plugins` в `.zshrc`:
@@ -134,10 +145,14 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting web-search zsh-fzf-hist
 
 ### Проблемы с символическими ссылками
 ```bash
-# Удалить существующие файлы и создать симлинки заново
-rm ~/.zshrc ~/.tmux.conf ~/.gitconfig
-./install.sh
+# Пересоздать все симлинки через stow (идемпотентно)
+stow --dir="$HOME/.dotfiles" --target="$HOME" --restow home
+
+# Либо удалить и создать заново
+make clean && ./install.sh --symlinks-only
 ```
+Если stow жалуется на конфликт, значит в `$HOME` уже лежит настоящий файл —
+переименуйте его (installer делает `*.backup` автоматически) и повторите.
 
 ### Проблемы с правами доступа
 ```bash
