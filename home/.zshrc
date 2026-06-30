@@ -113,8 +113,8 @@ alias vim="nvim"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 HISTFILE=$HOME/.zhistory
-SAVEHIST=1000
-HISTSIZE=999
+SAVEHIST=100000
+HISTSIZE=100000
 setopt share_history
 setopt hist_expire_dups_first
 setopt hist_ignore_dups

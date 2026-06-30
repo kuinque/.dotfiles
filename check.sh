@@ -53,7 +53,7 @@ dir_exists() {
 check_basic_tools() {
     log_info "Checking basic tools..."
     
-    local tools=("zsh" "git" "tmux" "nvim" "fzf")
+    local tools=("zsh" "git" "tmux" "nvim" "fzf" "stow" "kitty")
     local all_good=true
     
     for tool in "${tools[@]}"; do
@@ -133,31 +133,40 @@ check_tmux_plugins() {
     fi
 }
 
-# Check configuration files
+# Check configuration files (stow-managed symlinks; dirs allowed)
 check_config_files() {
     log_info "Checking configuration files..."
-    
+
     local configs=(
         "$HOME/.zshrc"
         "$HOME/.tmux.conf"
         "$HOME/.gitconfig"
+        "$HOME/.p10k.zsh"
+        "$HOME/.config/kitty"
+        "$HOME/.config/nvim"
+        "$HOME/.config/skhd/skhdrc"
+        "$HOME/.config/yabai/yabairc"
     )
-    
+
     local all_good=true
-    
+
     for config in "${configs[@]}"; do
-        if file_exists "$config"; then
+        # -e follows symlinks, so a healthy stow link counts as existing
+        if [[ -e "$config" ]]; then
             if is_symlink "$config"; then
                 log_success "$(basename "$config") is properly symlinked"
             else
-                log_warning "$(basename "$config") exists but is not a symlink"
+                log_warning "$(basename "$config") exists but is not a symlink (not stow-managed)"
             fi
+        elif is_symlink "$config"; then
+            log_error "$(basename "$config") is a broken symlink"
+            all_good=false
         else
             log_error "$(basename "$config") is missing"
             all_good=false
         fi
     done
-    
+
     if [[ "$all_good" == true ]]; then
         log_success "All configuration files are present"
     else
