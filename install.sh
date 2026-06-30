@@ -97,7 +97,7 @@ install_packages() {
             # Install Homebrew packages
             brew_packages=(
                 "kitty"
-                "nvim"
+                "neovim"
                 "git"
                 "stow"
                 "tmux"

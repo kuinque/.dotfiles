@@ -77,7 +77,7 @@ update_oh_my_zsh() {
     if [[ -d "$HOME/.oh-my-zsh" ]]; then
         log_info "Updating Oh My Zsh..."
         cd "$HOME/.oh-my-zsh"
-        git pull
+        git pull || log_warning "git pull failed, skipping"
     fi
 }
 
@@ -88,25 +88,25 @@ update_zsh_plugins() {
     # Update zsh-autosuggestions
     if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]]; then
         cd "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-        git pull
+        git pull || log_warning "git pull failed, skipping"
     fi
     
     # Update zsh-syntax-highlighting
     if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]]; then
         cd "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-        git pull
+        git pull || log_warning "git pull failed, skipping"
     fi
     
     # Update powerlevel10k
     if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]]; then
         cd "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-        git pull
+        git pull || log_warning "git pull failed, skipping"
     fi
     
     # Update zsh-fzf-history-search
     if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-fzf-history-search" ]]; then
         cd "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-fzf-history-search"
-        git pull
+        git pull || log_warning "git pull failed, skipping"
     fi
 }
 
@@ -115,7 +115,7 @@ update_tmux_plugins() {
     if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
         log_info "Updating tmux plugins..."
         cd "$HOME/.tmux/plugins/tpm"
-        git pull
+        git pull || log_warning "git pull failed, skipping"
     fi
 }
 
@@ -124,7 +124,7 @@ update_dotfiles() {
     log_info "Updating dotfiles repository..."
     DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     cd "$DOTFILES_DIR"
-    git pull
+    git pull || log_warning "git pull failed, skipping"
 }
 
 # Main update function
